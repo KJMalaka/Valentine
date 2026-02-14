@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Valentine's Day</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.16/framer-motion.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+    
+    .font-playfair {
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .font-inter {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Custom animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Heart particle animation */
+    .heart-particle {
+      position: absolute;
+      animation: fall linear forwards;
+      pointer-events: none;
+    }
+    
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen bg-gradient-to-br from-[#2D0B26] via-[#1a0515] to-[#000000] flex items-center justify-center px-4 overflow-hidden relative">
+    <!-- Ambient background effects -->
+    <div class="absolute inset-0 opacity-30">
+      <div class="absolute top-20 left-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-2xl">
+      <!-- Phase 1: Landing -->
+      <div id="phase1" class="text-center">
+        <h1 class="text-5xl md:text-7xl mb-6 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 bg-clip-text text-transparent font-playfair font-bold">
+          Happy Valentine's Day,<br />
+          My Love
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-purple-200/80 mb-12 font-inter">
+          Today is about you
+        </p>
+
+        <button onclick="goToPhase2()" class="px-12 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full text-lg font-medium hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 font-inter hover:scale-105 active:scale-95">
+          Continue
+        </button>
+      </div>
+
+      <!-- Phase 2: The Question -->
+      <div id="phase2" class="text-center" style="display: none;">
+        <h2 class="text-4xl md:text-6xl mb-16 text-pink-200 font-playfair font-bold">
+          Will you be my Valentine?
+        </h2>
+
+        <div class="flex flex-col md:flex-row gap-6 items-center justify-center">
+          <button id="yesBtn" onclick="handleYesClick()" class="px-12 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-green-500/50 transition-all duration-300 font-inter hover:scale-110 active:scale-95">
+            YES! ❤️
+          </button>
+
+          <button id="noBtn" onclick="handleNoClick()" onmouseenter="handleNoClick()" class="px-12 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 font-inter hover:scale-95 active:scale-90">
+            NO
+          </button>
+        </div>
+
+        <p id="hint" class="mt-8 text-purple-300/60 text-sm italic font-inter" style="opacity: 0; transition: opacity 0.5s;">
+          The YES button is looking quite appealing, don't you think?
+        </p>
+      </div>
+
+      <!-- Phase 3: Affirmations -->
+      <div id="phase3" class="text-center" style="display: none;">
+        <div class="mb-16">
+          <div class="text-8xl mb-6 animate-float">💕</div>
+          <h2 class="text-4xl md:text-5xl text-pink-200 mb-4 font-playfair font-bold">
+            I knew you'd say yes!
+          </h2>
+        </div>
+
+        <div id="affirmations" class="space-y-8 mb-16">
+        </div>
+
+        <div id="finalMessage" style="display: none;" class="bg-gradient-to-br from-purple-900/40 to-pink-900/40 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-purple-500/30">
+          <h3 class="text-3xl md:text-4xl mb-6 text-pink-200 font-playfair font-bold">
+            One Last Thing...
+          </h3>
+          <p class="text-lg md:text-xl leading-relaxed text-purple-100/90 font-inter">
+            Every moment with you is a gift I never knew I needed. You've turned my ordinary days into extraordinary memories, my fears into courage, and my dreams into reality. Thank you for choosing to be mine, today and always. Happy Valentine's Day, my love.
+          </p>
+          <div class="mt-8 text-pink-300 text-2xl font-playfair">
+            Forever yours ♥
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // State
+    let phase = 1;
+    let noClickCount = 0;
+    let yesScale = 1;
+    let showConfetti = false;
+    let affirmationIndex = 0;
+
+    const noButtonTexts = [
+      "NO",
+      "Are you sure?",
+      "Really?",
+      "You're breaking my heart...",
+      "Please reconsider?",
+      "One more chance?",
+      "Don't do this to me...",
+      "My heart can't take it...",
+      "Final answer?",
+      "You really mean no?"
+    ];
+
+    const affirmations = [
+      "You are my peace.",
+      "My safe place.",
+      "My forever home.",
+      "The calm in my chaos.",
+      "My favorite hello and hardest goodbye.",
+      "The reason I smile."
+    ];
+
+    // Confetti
+    function createConfetti() {
+      const container = document.getElementById('app');
+      
+      for (let i = 0; i < 50; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-particle';
+        heart.innerHTML = '♥';
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.top = '-50px';
+        heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+        heart.style.color = '#f87171';
+        heart.style.animationDuration = (Math.random() * 2 + 4) + 's';
+        heart.style.animationDelay = Math.random() * 3 + 's';
+        container.appendChild(heart);
+        
+        setTimeout(() => heart.remove(), 7000);
+      }
+    }
+
+    // Navigation
+    function goToPhase2() {
+      document.getElementById('phase1').style.display = 'none';
+      document.getElementById('phase2').style.display = 'block';
+      phase = 2;
+    }
+
+    // Yes button
+    function handleYesClick() {
+      createConfetti();
+      setTimeout(() => {
+        document.getElementById('phase2').style.display = 'none';
+        document.getElementById('phase3').style.display = 'block';
+        phase = 3;
+        startAffirmations();
+      }, 2000);
+    }
+
+    // No button
+    function handleNoClick() {
+      noClickCount = Math.min(noClickCount + 1, noButtonTexts.length - 1);
+      yesScale = yesScale + 0.15;
+      
+      document.getElementById('yesBtn').style.transform = `scale(${yesScale})`;
+      document.getElementById('noBtn').textContent = noButtonTexts[noClickCount];
+      
+      if (noClickCount > 2) {
+        document.getElementById('hint').style.opacity = '1';
+      }
+    }
+
+    // Affirmations
+    function startAffirmations() {
+      const container = document.getElementById('affirmations');
+      
+      const showNextAffirmation = () => {
+        if (affirmationIndex < affirmations.length) {
+          const p = document.createElement('p');
+          p.className = 'text-2xl md:text-3xl text-purple-200 font-playfair';
+          p.textContent = affirmations[affirmationIndex];
+          p.style.opacity = '0';
+          p.style.transform = 'translateY(30px)';
+          p.style.transition = 'opacity 1s, transform 1s';
+          container.appendChild(p);
+          
+          setTimeout(() => {
+            p.style.opacity = '1';
+            p.style.transform = 'translateY(0)';
+          }, 100);
+          
+          affirmationIndex++;
+          setTimeout(showNextAffirmation, 2000);
+        } else {
+          document.getElementById('finalMessage').style.display = 'block';
+        }
+      };
+      
+      setTimeout(showNextAffirmation, 500);
+    }
+
+    // Initial animation
+    window.onload = () => {
+      const h1 = document.querySelector('h1');
+      h1.style.opacity = '0';
+      h1.style.transform = 'scale(0.9)';
+      h1.style.transition = 'opacity 1s, transform 1s';
+      
+      setTimeout(() => {
+        h1.style.opacity = '1';
+        h1.style.transform = 'scale(1)';
+      }, 300);
+      
+      // Start floating hearts background
+      startFloatingHearts();
+    };
+    
+    // Floating hearts background
+    function startFloatingHearts() {
+      setInterval(() => {
+        const container = document.getElementById('app');
+        const heart = document.createElement('div');
+        heart.innerHTML = ['♥', '💕', '💗', '💖', '💘', '💝'][Math.floor(Math.random() * 6)];
+        heart.style.position = 'absolute';
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.bottom = '-50px';
+        heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        heart.style.color = ['#ff6b6b', '#f06595', '#cc5de8', '#845ef7', '#5c7cfa', '#339af0'][Math.floor(Math.random() * 6)];
+        heart.style.opacity = '0.7';
+        heart.style.animation = `floatHeart ${Math.random() * 10 + 10}s linear forwards`;
+        heart.style.pointerEvents = 'none';
+        container.appendChild(heart);
+        
+        setTimeout(() => heart.remove(), 20000);
+      }, 2000);
+    }
+    
+    // Add floating heart animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatHeart {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.7;
+        }
+        90% {
+          opacity: 0.7;
+        }
+        100% {
+          transform: translateY(-100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+  </script>
+</body>
+</html>
