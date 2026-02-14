@@ -229,6 +229,7 @@ function App() {
                 <motion.button
                   onClick={handleNoClick}
                   onMouseEnter={handleNoClick}
+                  onTouchStart={handleNoClick}
                   className="px-12 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 font-inter"
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
